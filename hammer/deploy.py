@@ -33,7 +33,7 @@ if __name__ == '__main__' and __package__ is None:
 
 from hammer.config import RPCaddress, TIMEOUT_DEPLOY, PARITY_UNLOCK_EACH_TRANSACTION
 from hammer.config import FILE_CONTRACT_SOURCE, FILE_CONTRACT_ABI, FILE_CONTRACT_ADDRESS
-from hammer.config import GAS_FOR_SET_CALL
+from hammer.config import GAS_FOR_SET_CALL,PRIVATE_FOR
 
 from hammer.clienttools import web3connection, unlockAccount
 
@@ -59,15 +59,18 @@ def compileContract(contract_source_file):
     return contractName.replace("<stdin>:", ""), contract_interface 
 
 
-def deployContract(contract_interface, ifPrint=True, timeout=TIMEOUT_DEPLOY):
+def deployContract(contract_interface, ifPrint=True, timeout=TIMEOUT_DEPLOY, privateFor=PRIVATE_FOR):
     """
     deploys contract, waits for receipt, returns address
     """
     before=time.time()
     myContract = w3.eth.contract(abi=contract_interface['abi'], 
                                  bytecode=contract_interface['bin'])
+    if privateFor:
+        tx_hash = w3.toHex( myContract.constructor().transact({'privateFor': privateFor}) )
+    else:
+        tx_hash = w3.toHex( myContract.constructor().transact() )
 
-    tx_hash = w3.toHex( myContract.constructor().transact() )
     print ("tx_hash = ", tx_hash, "--> waiting for receipt (timeout=%d) ..." % timeout)
     sys.stdout.flush()
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash, timeout=timeout)
