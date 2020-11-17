@@ -38,13 +38,13 @@ from hammer.clienttype import clientType
 def printVersions():
     import sys
     from web3 import __version__ as web3version 
-    from solc import get_solc_version
+    from solcx import get_solc_version
     from testrpc import __version__ as ethtestrpcversion
     
     import pkg_resources
-    pysolcversion = pkg_resources.get_distribution("py-solc").version
+    pysolcversion = pkg_resources.get_distribution("py-solc-x").version
     
-    print ("versions: web3 %s, py-solc: %s, solc %s, testrpc %s, python %s" % (web3version, pysolcversion, get_solc_version(), ethtestrpcversion, sys.version.replace("\n", "")))
+    print ("versions: web3 %s, py-solc-x: %s, solc %s, testrpc %s, python %s" % (web3version, pysolcversion, get_solc_version(), ethtestrpcversion, sys.version.replace("\n", "")))
 
 
 ################################################################################
@@ -65,7 +65,8 @@ def start_web3connection(RPCaddress=None, account=None):
         w3 = Web3(Web3.TestRPCProvider()) 
     
     print ("web3 connection established, blockNumber =", w3.eth.blockNumber, end=", ")
-    print ("node version string = ", w3.version.node)
+    #print ("node version string = ", w3.version.node)
+    print ("node version string = ", w3.clientVersion)
     accountname="chosen"
     if not account:
         w3.eth.defaultAccount = w3.eth.accounts[0] # set first account as sender
@@ -103,7 +104,8 @@ def if_poa_then_bugfix(w3, NODENAME, CHAINNAME, CONSENSUS):
     if NODENAME == "Quorum" or CHAINNAME=='500' or CONSENSUS=='clique':
         from web3.middleware import geth_poa_middleware
         # inject the poa compatibility middleware to the innermost layer
-        w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+        #w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 
 # def web3connection(RPCaddress=RPCaddress, account=None):
@@ -159,7 +161,7 @@ def unlockAccount(duration=3600, account=None):
     unlock once, then leave open, to later not loose time for unlocking
     """
     
-    if ("TestRPC" in w3.version.node) or (PARITY_ALREADY_UNLOCKED and ("Parity" in w3.version.node)):
+    if ("TestRPC" in w3.clientVersion) or (PARITY_ALREADY_UNLOCKED and ("Parity" in w3.clientVersion)):
         return True # TestRPC does not need unlocking; or parity can be CLI-switch unlocked when starting
     
     if NODENAME=="Quorum":
@@ -175,7 +177,7 @@ def unlockAccount(duration=3600, account=None):
     if NODENAME=="Geth" and CONSENSUS=="clique" and NETWORKID==500:
         passphrase="pass" # hardcoded in geth-dev/docker-compose.yml
 
-    # print ("passphrase:", passphrase)
+    print ("passphrase:", passphrase)
 
     if not account:
         account = w3.eth.defaultAccount
@@ -187,9 +189,9 @@ def unlockAccount(duration=3600, account=None):
     else:
         if NODETYPE=="Parity": 
             duration = w3.toHex(duration)
-        answer = w3.personal.unlockAccount(account=account, 
-                                           passphrase=passphrase,
-                                           duration=duration)
+        answer = w3.geth.personal.unlockAccount(account, 
+                                           passphrase,
+                                           duration)
     print ("unlocked:", answer)
     return answer
      

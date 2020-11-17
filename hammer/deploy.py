@@ -20,7 +20,7 @@ import requests # pip3 install requests
 
 try:
     from web3 import Web3, HTTPProvider # pip3 install web3
-    from solc import compile_source # pip install py-solc
+    from solcx import compile_source # pip install py-solc
 except:
     print ("Dependencies unavailable. Start virtualenv first!")
     exit()
@@ -156,6 +156,7 @@ if __name__ == '__main__':
     w3, chainInfos = web3connection(RPCaddress=RPCaddress, account=None)
     NODENAME, NODETYPE, NODEVERSION, CONSENSUS, NETWORKID, CHAINNAME, CHAINID = chainInfos
 
+    print(FILE_CONTRACT_SOURCE)
     contract_CompileDeploySave(contract_source_file=FILE_CONTRACT_SOURCE)
     
     # argument "test" runs the .set() test transaction

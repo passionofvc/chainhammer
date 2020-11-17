@@ -26,8 +26,8 @@ from pprint import pprint
 import requests # pip3 install requests
 import web3
 from web3 import Web3, HTTPProvider # pip3 install web3
-from web3.utils.abi import filter_by_name, abi_to_signature
-from web3.utils.encoding import pad_hex
+from web3._utils.abi import filter_by_name, abi_to_signature
+from web3._utils.encoding import pad_hex
 
 # chainhammer:
 from hammer.config import RPCaddress, ROUTE, PRIVATE_FOR, EXAMPLE_ABI
@@ -372,7 +372,7 @@ def hasTxSucceeded(tx_receipt): #, gasGiven=GAS_FOR_SET_CALL):
 def receiptGetter(tx_hash, timeout, resultsDict):
     try:
         resultsDict[tx_hash] = w3.eth.waitForTransactionReceipt(tx_hash, timeout)
-    except web3.utils.threads.Timeout:
+    except web3._utils.threads.Timeout:
         pass
         
             
