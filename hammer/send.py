@@ -535,7 +535,7 @@ def store_experiment_data(success, num_txs,
                 },
             "node" : {
                 "rpc_address": RPCaddress,
-                "web3.version.node": w3.version.node,
+                "web3.version.node": w3.clientVersion,
                 "name" : NODENAME,
                 "type" : NODETYPE,
                 "version" : NODEVERSION, 
